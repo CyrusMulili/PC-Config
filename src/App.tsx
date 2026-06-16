@@ -4,6 +4,7 @@ import BuildResults from './components/BuildResults';
 import CompatDisplay from './components/CompatDisplay';
 import ChatPanel from './components/ChatPanel';
 import SwapModal from './components/SwapModal';
+import GenerationLoader from './components/GenerationLoader';
 import { BuildComponent, ComponentCategory, PCBuild, ChatMessage } from './types';
 import { formatKSh } from './utils';
 import { checkCompatibility } from './compatibility';
@@ -16,6 +17,7 @@ export default function App() {
   const [build, setBuild] = useState<PCBuild | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [swapModalState, setSwapModalState] = useState<{ category: ComponentCategory; component: BuildComponent } | null>(null);
+  const [pendingSpec, setPendingSpec] = useState<{ budgetKSh: number; useCase: string } | null>(null);
 
   // Apply dark mode theme class toggle on HTML element
   useEffect(() => {
@@ -32,6 +34,7 @@ export default function App() {
     useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
     excludedCategories: ComponentCategory[];
   }) => {
+    setPendingSpec({ budgetKSh: formData.budgetKSh, useCase: formData.useCase });
     setLoading(true);
     setBuild(null);
     setChatHistory([]);
@@ -236,23 +239,27 @@ ${checkReport.issues.join('\n')}`;
       {/* Main Container Stage */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative">
         {!build ? (
-          /* Onboarding Form Screen */
-          <div className="space-y-8 animate-fade-in">
-            <div className="text-center space-y-3 max-w-2xl mx-auto mb-6">
-              <div className="inline-flex items-center gap-1.5 bg-natural-primary/10 border border-natural-primary/20 text-natural-primary px-3 py-1 rounded-full text-xs font-bold">
-                <Sparkles className="h-3 w-3" />
-                <span>Search Grounding Advisor</span>
+          loading && pendingSpec ? (
+            <GenerationLoader budgetKSh={pendingSpec.budgetKSh} useCase={pendingSpec.useCase} />
+          ) : (
+            /* Onboarding Form Screen */
+            <div className="space-y-8 animate-fade-in">
+              <div className="text-center space-y-3 max-w-2xl mx-auto mb-6">
+                <div className="inline-flex items-center gap-1.5 bg-natural-primary/10 border border-natural-primary/20 text-natural-primary px-3 py-1 rounded-full text-xs font-bold">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Search Grounding Advisor</span>
+                </div>
+                <h2 className="text-4xl sm:text-5xl font-serif italic text-natural-primary dark:text-zinc-50 leading-tight">
+                  Build the Perfect Computer
+                </h2>
+                <p className="text-sm text-natural-muted leading-relaxed max-w-lg mx-auto font-medium">
+                  Enter your total budget in Kenyan Shillings. BuildWise rule-engine translates details to find compatible component deals from popular shops.
+                </p>
               </div>
-              <h2 className="text-4xl sm:text-5xl font-serif italic text-natural-primary dark:text-zinc-50 leading-tight">
-                Build the Perfect Computer
-              </h2>
-              <p className="text-sm text-natural-muted leading-relaxed max-w-lg mx-auto font-medium">
-                Enter your total budget in Kenyan Shillings. BuildWise rule-engine translates details to find compatible component deals from popular shops.
-              </p>
+              
+              <OnboardingForm onGenerate={handleGenerateBuild} loading={loading} />
             </div>
-            
-            <OnboardingForm onGenerate={handleGenerateBuild} loading={loading} />
-          </div>
+          )
         ) : (
           /* Build Results & Chat Assistant View Screen */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
