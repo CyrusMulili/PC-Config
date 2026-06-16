@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Gamepad2, Briefcase, Camera, Laptop, Info, Check, Sparkles } from 'lucide-react';
+import { Gamepad2, Briefcase, Camera, Laptop, Info, Check, Sparkles, Database, Search } from 'lucide-react';
 import { ComponentCategory } from '../types';
 import { formatKSh } from '../utils';
 
@@ -9,6 +9,7 @@ interface OnboardingFormProps {
     budgetKSh: number;
     useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
     excludedCategories: ComponentCategory[];
+    sourcingPreference: 'hybrid' | 'local_only';
   }) => void;
   loading: boolean;
 }
@@ -65,6 +66,7 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
   const [budgetInput, setBudgetInput] = useState<string>('120000');
   const [useCase, setUseCase] = useState<'Gaming' | 'Office' | 'ContentCreation' | 'General'>('Gaming');
   const [excluded, setExcluded] = useState<ComponentCategory[]>([]);
+  const [sourcingPreference, setSourcingPreference] = useState<'hybrid' | 'local_only'>('hybrid');
 
   const handlePresetSelect = (val: number) => {
     setBudgetInput(val.toString());
@@ -89,6 +91,7 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
       budgetKSh: parsedBudget,
       useCase,
       excludedCategories: excluded,
+      sourcingPreference,
     });
   };
 
@@ -239,6 +242,67 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
         </div>
       </div>
 
+      {/* Step 4: Sourcing Preference & Price Quality */}
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-natural-border-light dark:border-zinc-800 transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-2xl bg-natural-primary/10 text-natural-primary flex items-center justify-center font-bold">
+            4
+          </div>
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-natural-text dark:text-zinc-50">Select Pricing Sourcing Mode</h2>
+            <p className="text-sm text-natural-muted dark:text-zinc-400">Control how regional Kenyan hardware prices are queried</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setSourcingPreference('hybrid')}
+            className={`p-5 rounded-3xl text-left border cursor-pointer transition-all duration-300 flex items-start gap-4 ${
+              sourcingPreference === 'hybrid'
+                ? 'border-natural-primary dark:border-emerald-500 bg-natural-secondary dark:bg-zinc-800/40 shadow-sm'
+                : 'border-natural-border-light dark:border-zinc-800 hover:border-natural-border dark:hover:border-zinc-700 bg-transparent'
+            }`}
+          >
+            <div className={`p-3 rounded-2xl ${sourcingPreference === 'hybrid' ? 'bg-natural-primary text-white' : 'bg-natural-primary/10 text-natural-primary'}`}>
+              <Search className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-natural-text dark:text-zinc-100 font-sans">Live Grounded Search</h3>
+                <span className="bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">Default</span>
+              </div>
+              <p className="text-sm text-natural-muted dark:text-zinc-400 mt-1">
+                Launches real-time Google Search queries to retrieve currently live active listings and competitor prices from Jumia, Avechi, and local computer shops.
+              </p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSourcingPreference('local_only')}
+            className={`p-5 rounded-3xl text-left border cursor-pointer transition-all duration-300 flex items-start gap-4 ${
+              sourcingPreference === 'local_only'
+                ? 'border-natural-primary dark:border-emerald-500 bg-natural-secondary dark:bg-zinc-800/40 shadow-sm'
+                : 'border-natural-border-light dark:border-zinc-800 hover:border-natural-border dark:hover:border-zinc-700 bg-transparent'
+            }`}
+          >
+            <div className={`p-3 rounded-2xl ${sourcingPreference === 'local_only' ? 'bg-natural-primary text-white' : 'bg-natural-primary/10 text-natural-primary'}`}>
+              <Database className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-natural-text dark:text-zinc-100 font-sans">Verified Curated Database</h3>
+                <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">Super Fast</span>
+              </div>
+              <p className="text-sm text-natural-muted dark:text-zinc-400 mt-1">
+                Generates recommendations strictly using our internally verified, pre-curated ledger of local hardware specs and fixed catalog price indices. 100% stable, lightning fast, and failsafe.
+              </p>
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Submit Button */}
       <div className="flex flex-col items-center justify-center pb-8">
         <button
@@ -252,7 +316,7 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>Consulting live store inventory...</span>
+              <span>{sourcingPreference === 'hybrid' ? 'Consulting live store inventory...' : 'Loading verified compatible components...'}</span>
             </>
           ) : (
             <>
@@ -264,7 +328,11 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
 
         <div className="flex items-center gap-1.5 mt-4 text-xs text-natural-muted max-w-md text-center leading-relaxed">
           <Info className="h-3.5 w-3.5 shrink-0" />
-          <span>BuildWise queries live shops via Google Search grounding to discover real hardware prices & specs.</span>
+          <span>
+            {sourcingPreference === 'hybrid'
+              ? 'BuildWise searches live Kenyan retailers via AI grounding to match actual current listings.'
+              : 'BuildWise is running in local stable mode. Recommendations are directly sourced from the verified local offline hardware catalog.'}
+          </span>
         </div>
       </div>
     </form>

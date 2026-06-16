@@ -33,6 +33,7 @@ export default function App() {
     budgetKSh: number;
     useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
     excludedCategories: ComponentCategory[];
+    sourcingPreference: 'hybrid' | 'local_only';
   }) => {
     setPendingSpec({ budgetKSh: formData.budgetKSh, useCase: formData.useCase });
     setLoading(true);
@@ -55,21 +56,32 @@ export default function App() {
       
       if (data && data.components) {
         const total = data.components.reduce((sum: number, c: any) => sum + (c.priceKSh || 0), 0);
+        const resolvedMode = data.sourcingMode || (formData.sourcingPreference === 'local_only' ? 'local_catalog' : 'live');
         const newBuild: PCBuild = {
           components: data.components,
           budgetKSh: formData.budgetKSh,
           totalCostKSh: total,
           useCase: formData.useCase,
-          excludedCategories: formData.excludedCategories
+          excludedCategories: formData.excludedCategories,
+          sourcingMode: resolvedMode
         };
         setBuild(newBuild);
         
+        let sourcingMethodSnippet = "";
+        if (resolvedMode === 'live') {
+          sourcingMethodSnippet = "Sourced **live** using Google Search Grounding across top Kenyan shops (such as Jumia, Avechi, and Skyworld) for up-to-the-minute local retail figures.";
+        } else if (resolvedMode === 'estimation') {
+          sourcingMethodSnippet = "Retrieved via **AI Smart Estimation** using deep hardware catalogs (as live search queries hit regional rate-limits).";
+        } else {
+          sourcingMethodSnippet = "Loaded directly from our **Verified Offline Local Catalog**, ensuring absolute 100% price stability, guaranteed compatibility, and immune to API quota limits!";
+        }
+
         // Push initial greeting from AI build assistant
         setChatHistory([
           {
             id: 'init-greet',
             sender: 'assistant',
-            text: `🔧 **BuildWise PC Build Recommendations Generated!**\n\nI have structured a customized build matching your budget of **${formatKSh(formData.budgetKSh)}** optimized for **${formData.useCase}** tasks.\n\nAll components were sourced via live web query. Expand card details below to verify store listings and check physical/electrical rule properties! Ask me any questions, or swap parts.`,
+            text: `🔧 **BuildWise PC Build Recommendations Generated!**\n\nI have structured a customized build matching your budget of **${formatKSh(formData.budgetKSh)}** optimized for **${formData.useCase}** tasks.\n\n**Sourcing Method:** ${sourcingMethodSnippet}\n\nExpand any component card below to inspect electrical clearance rules, socket types, competitor listings, or to perform a direct parts comparison!`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ]);
@@ -219,10 +231,33 @@ ${checkReport.issues.join('\n')}`;
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-natural-secondary dark:bg-zinc-900 uppercase tracking-wider text-natural-primary">
-              <span className="h-2 w-2 rounded-full bg-natural-primary animate-pulse" />
-              <span>Grounded in Live Web Results</span>
-            </span>
+            {build ? (
+              <span className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                build.sourcingMode === 'live'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/45 dark:text-emerald-350'
+                  : build.sourcingMode === 'estimation'
+                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/45 dark:text-amber-300'
+                    : 'bg-blue-50 text-blue-750 dark:bg-blue-950/45 dark:text-blue-300'
+              }`}>
+                <span className={`h-2 w-2 rounded-full animate-pulse ${
+                  build.sourcingMode === 'live'
+                    ? 'bg-emerald-600'
+                    : build.sourcingMode === 'estimation'
+                      ? 'bg-amber-500'
+                      : 'bg-blue-500'
+                }`} />
+                <span>
+                  {build.sourcingMode === 'live' && 'Grounded in Live Search'}
+                  {build.sourcingMode === 'estimation' && 'AI Estimated Senses'}
+                  {build.sourcingMode === 'local_catalog' && 'Verified Local Catalog'}
+                </span>
+              </span>
+            ) : (
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-natural-secondary dark:bg-zinc-900 uppercase tracking-wider text-natural-primary">
+                <span className="h-2 w-2 rounded-full bg-natural-primary animate-pulse" />
+                <span>Smart PC Build Grounding</span>
+              </span>
+            )}
 
             {/* Light/Dark Toggle */}
             <button

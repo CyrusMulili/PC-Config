@@ -38,6 +38,7 @@ export interface PCBuild {
   budgetKSh: number;
   useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
   excludedCategories: ComponentCategory[];
+  sourcingMode?: 'live' | 'estimation' | 'local_catalog';
 }
 
 export interface CompatibilityReport {
