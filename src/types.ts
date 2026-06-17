@@ -30,6 +30,15 @@ export interface BuildComponent {
   sourceName: string; // e.g., "Jumia Kenya", "Skyworld Kenya", "Avechi", "Sky.co.ke", "Phone Place"
   sourceUrl: string;
   alternativeOptions?: StoreOption[];
+  verifiedRealWorld?: boolean;
+}
+
+export interface OwnedSpecs {
+  socket?: string; // LGA1700, AM5, AM4 etc.
+  ramType?: 'DDR4' | 'DDR5';
+  formFactor?: 'ATX' | 'Micro-ATX' | 'Mini-ITX';
+  wattage?: number;
+  model?: string; // e.g. "Core i5 12th Gen"
 }
 
 export interface PCBuild {
@@ -39,11 +48,21 @@ export interface PCBuild {
   useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
   excludedCategories: ComponentCategory[];
   sourcingMode?: 'live' | 'estimation' | 'local_catalog';
+  ownedSpecs?: Record<string, OwnedSpecs>;
 }
 
 export interface CompatibilityReport {
   compatible: boolean;
   issues: string[];
+  metrics?: {
+    totalEstimatedPowerDraw: number;
+    requiredMinPower: number;
+    psuCapacity: number;
+    powerSafetyMargin: number;
+    gpuLength: number;
+    caseGpuLimit: number;
+    gpuConnectorOk: boolean;
+  };
 }
 
 export interface ChatMessage {

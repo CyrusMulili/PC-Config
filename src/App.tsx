@@ -5,10 +5,11 @@ import CompatDisplay from './components/CompatDisplay';
 import ChatPanel from './components/ChatPanel';
 import SwapModal from './components/SwapModal';
 import GenerationLoader from './components/GenerationLoader';
+import DiagnosticSuite from './components/DiagnosticSuite';
 import { BuildComponent, ComponentCategory, PCBuild, ChatMessage } from './types';
 import { formatKSh } from './utils';
 import { checkCompatibility } from './compatibility';
-import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight } from 'lucide-react';
+import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight, Shield } from 'lucide-react';
 
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -18,6 +19,7 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [swapModalState, setSwapModalState] = useState<{ category: ComponentCategory; component: BuildComponent } | null>(null);
   const [pendingSpec, setPendingSpec] = useState<{ budgetKSh: number; useCase: string } | null>(null);
+  const [diagnosticOpen, setDiagnosticOpen] = useState(false);
 
   // Apply dark mode theme class toggle on HTML element
   useEffect(() => {
@@ -34,6 +36,7 @@ export default function App() {
     useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
     excludedCategories: ComponentCategory[];
     sourcingPreference: 'hybrid' | 'local_only';
+    ownedSpecs?: Record<string, any>;
   }) => {
     setPendingSpec({ budgetKSh: formData.budgetKSh, useCase: formData.useCase });
     setLoading(true);
@@ -63,7 +66,8 @@ export default function App() {
           totalCostKSh: total,
           useCase: formData.useCase,
           excludedCategories: formData.excludedCategories,
-          sourcingMode: resolvedMode
+          sourcingMode: resolvedMode,
+          ownedSpecs: formData.ownedSpecs
         };
         setBuild(newBuild);
         
@@ -108,6 +112,14 @@ export default function App() {
 
   const handleAddChatMessage = (msg: ChatMessage) => {
     setChatHistory(prev => [...prev, msg]);
+  };
+
+  const handleUpdateOwnedSpecs = (specs: Record<string, any>) => {
+    if (!build) return;
+    setBuild({
+      ...build,
+      ownedSpecs: specs
+    });
   };
 
   const handleRemoveComponent = (category: ComponentCategory) => {
@@ -259,6 +271,16 @@ ${checkReport.issues.join('\n')}`;
               </span>
             )}
 
+            {/* System Testing & Telemetry Diagnostic Suite */}
+            <button
+              onClick={() => setDiagnosticOpen(true)}
+              className="p-2 py-1.5 rounded-xl border border-natural-border-light dark:border-zinc-850 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs cursor-pointer hover:bg-emerald-500/15 transition flex items-center gap-1.5 select-none"
+              title="Open System Validation Testing & Diagnostics Suite"
+            >
+              <Shield className="h-4 w-4 text-emerald-500 animate-pulse" />
+              <span className="hidden sm:inline">Telemetry & Testing</span>
+            </button>
+
             {/* Light/Dark Toggle */}
             <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
@@ -303,8 +325,10 @@ ${checkReport.issues.join('\n')}`;
               {/* Compatibility warning display widget */}
               <CompatDisplay 
                 components={build.components} 
+                ownedSpecs={build.ownedSpecs}
                 onAutoFix={handleAutoFix}
                 loadingFix={loadingFix}
+                onUpdateOwnedSpecs={handleUpdateOwnedSpecs}
               />
 
               <BuildResults
@@ -349,6 +373,23 @@ ${checkReport.issues.join('\n')}`;
           currentBuild={build}
         />
       )}
+
+      {/* System Validation Testing and Diagnostic Board */}
+      <DiagnosticSuite
+        isOpen={diagnosticOpen}
+        onClose={() => setDiagnosticOpen(false)}
+        currentComponents={build?.components || []}
+        ownedSpecs={build?.ownedSpecs}
+        onLoadScenario={(components, specs) => {
+          if (!build) return;
+          setBuild({
+            ...build,
+            components,
+            ownedSpecs: specs || {},
+            totalCostKSh: components.reduce((sum, c) => sum + (c.priceKSh || 0), 0)
+          });
+        }}
+      />
     </div>
   );
 }

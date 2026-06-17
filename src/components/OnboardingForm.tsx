@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Gamepad2, Briefcase, Camera, Laptop, Info, Check, Sparkles, Database, Search } from 'lucide-react';
-import { ComponentCategory } from '../types';
+import { Gamepad2, Briefcase, Camera, Laptop, Info, Check, Sparkles, Database, Search, Settings2, Sliders } from 'lucide-react';
+import { ComponentCategory, OwnedSpecs } from '../types';
 import { formatKSh } from '../utils';
 
 interface OnboardingFormProps {
@@ -10,6 +10,7 @@ interface OnboardingFormProps {
     useCase: 'Gaming' | 'Office' | 'ContentCreation' | 'General';
     excludedCategories: ComponentCategory[];
     sourcingPreference: 'hybrid' | 'local_only';
+    ownedSpecs?: Record<string, OwnedSpecs>;
   }) => void;
   loading: boolean;
 }
@@ -67,6 +68,7 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
   const [useCase, setUseCase] = useState<'Gaming' | 'Office' | 'ContentCreation' | 'General'>('Gaming');
   const [excluded, setExcluded] = useState<ComponentCategory[]>([]);
   const [sourcingPreference, setSourcingPreference] = useState<'hybrid' | 'local_only'>('hybrid');
+  const [ownedSpecs, setOwnedSpecs] = useState<Record<string, OwnedSpecs>>({});
 
   const handlePresetSelect = (val: number) => {
     setBudgetInput(val.toString());
@@ -75,9 +77,36 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
   const handleToggleExclude = (cat: ComponentCategory) => {
     if (excluded.includes(cat)) {
       setExcluded(prev => prev.filter(item => item !== cat));
+      // Clean up ownedSpecs entry to avoid stale states
+      setOwnedSpecs(prev => {
+        const next = { ...prev };
+        delete next[cat];
+        return next;
+      });
     } else {
       setExcluded(prev => [...prev, cat]);
+      // Initialize a default shell if critical or customizable
+      setOwnedSpecs(prev => ({
+        ...prev,
+        [cat]: {
+          model: '',
+          socket: cat === 'CPU' || cat === 'Motherboard' ? 'AM5' : undefined,
+          ramType: cat === 'RAM' || cat === 'Motherboard' ? 'DDR5' : undefined,
+          formFactor: cat === 'Motherboard' ? 'ATX' : undefined,
+          wattage: cat === 'PSU' ? 650 : undefined
+        }
+      }));
     }
+  };
+
+  const handleUpdateOwnedSpec = (cat: string, key: keyof OwnedSpecs, value: any) => {
+    setOwnedSpecs(prev => ({
+      ...prev,
+      [cat]: {
+        ...(prev[cat] || {}),
+        [key]: value
+      }
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -92,6 +121,7 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
       useCase,
       excludedCategories: excluded,
       sourcingPreference,
+      ownedSpecs,
     });
   };
 
@@ -240,6 +270,184 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
             );
           })}
         </div>
+
+        {/* Specifications Configurator for Owned Parts */}
+        {excluded.some(it => ['CPU', 'Motherboard', 'RAM', 'PSU', 'Case'].includes(it)) && (
+          <div className="mt-6 p-5 bg-natural-secondary/50 dark:bg-zinc-950/40 rounded-2xl border border-natural-border-light dark:border-zinc-850 space-y-4 animate-fade-in text-xs">
+            <div className="flex items-center gap-2">
+              <Sliders className="h-4.5 w-4.5 text-natural-primary dark:text-emerald-400" />
+              <h3 className="font-bold text-natural-text dark:text-zinc-200">Specify Owned Part Attributes (Enables Precise Linter Checks)</h3>
+            </div>
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              Providing details about parts you already own allows our compatibility engine to run socket, physical, and power clearance checks against newly recommended parts!
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {excluded.includes('CPU') && (
+                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-natural-border-light dark:border-zinc-805 space-y-2.5">
+                  <span className="font-bold text-natural-text dark:text-zinc-300 block">Owned CPU</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Socket Type</label>
+                      <select
+                        value={ownedSpecs['CPU']?.socket || 'AM5'}
+                        onChange={(e) => handleUpdateOwnedSpec('CPU', 'socket', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="AM5">AM5 (AMD Ryzen 7000/8050/9000)</option>
+                        <option value="LGA1700">LGA1700 (Intel 12/13/14th Gen)</option>
+                        <option value="AM4">AM4 (AMD Ryzen 1000-5000)</option>
+                        <option value="LGA1200">LGA1200 (Intel 10/11th Gen)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Model / Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Ryzen 5 7600X"
+                        value={ownedSpecs['CPU']?.model || ''}
+                        onChange={(e) => handleUpdateOwnedSpec('CPU', 'model', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {excluded.includes('Motherboard') && (
+                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-natural-border-light dark:border-zinc-805 space-y-2.5">
+                  <span className="font-bold text-natural-text dark:text-zinc-300 block">Owned Motherboard</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Socket Type</label>
+                      <select
+                        value={ownedSpecs['Motherboard']?.socket || 'AM5'}
+                        onChange={(e) => handleUpdateOwnedSpec('Motherboard', 'socket', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="AM5">AM5 (AMD)</option>
+                        <option value="LGA1700">LGA1700 (Intel)</option>
+                        <option value="AM4">AM4 (AMD)</option>
+                        <option value="LGA1200">LGA1200 (Intel)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">RAM Support</label>
+                      <select
+                        value={ownedSpecs['Motherboard']?.ramType || 'DDR5'}
+                        onChange={(e) => handleUpdateOwnedSpec('Motherboard', 'ramType', e.target.value as any)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="DDR5">DDR5 Slots</option>
+                        <option value="DDR4">DDR4 Slots</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Size Form</label>
+                      <select
+                        value={ownedSpecs['Motherboard']?.formFactor || 'ATX'}
+                        onChange={(e) => handleUpdateOwnedSpec('Motherboard', 'formFactor', e.target.value as any)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="ATX">ATX (Standard)</option>
+                        <option value="MICRO-ATX">Micro-ATX</option>
+                        <option value="MINI-ITX">Mini-ITX</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {excluded.includes('RAM') && (
+                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-natural-border-light dark:border-zinc-805 space-y-2.5">
+                  <span className="font-bold text-natural-text dark:text-zinc-300 block">Owned RAM</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Generation Type</label>
+                      <select
+                        value={ownedSpecs['RAM']?.ramType || 'DDR5'}
+                        onChange={(e) => handleUpdateOwnedSpec('RAM', 'ramType', e.target.value as any)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="DDR5">DDR5 Stick</option>
+                        <option value="DDR4">DDR4 Stick</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Model Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Corsair Vengeance"
+                        value={ownedSpecs['RAM']?.model || ''}
+                        onChange={(e) => handleUpdateOwnedSpec('RAM', 'model', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {excluded.includes('PSU') && (
+                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-natural-border-light dark:border-zinc-805 space-y-2.5">
+                  <span className="font-bold text-natural-text dark:text-zinc-300 block">Owned Power Supply (PSU)</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Capacity (W)</label>
+                      <input
+                        type="number"
+                        min="250"
+                        max="2000"
+                        value={ownedSpecs['PSU']?.wattage || 650}
+                        onChange={(e) => handleUpdateOwnedSpec('PSU', 'wattage', parseInt(e.target.value) || 650)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-bold font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Model name / rating</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. EVGA SuperNova"
+                        value={ownedSpecs['PSU']?.model || ''}
+                        onChange={(e) => handleUpdateOwnedSpec('PSU', 'model', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {excluded.includes('Case') && (
+                <div className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-natural-border-light dark:border-zinc-805 space-y-2.5">
+                  <span className="font-bold text-natural-text dark:text-zinc-300 block">Owned Computer Case</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Supported Mobo Size</label>
+                      <select
+                        value={ownedSpecs['Case']?.formFactor || 'ATX'}
+                        onChange={(e) => handleUpdateOwnedSpec('Case', 'formFactor', e.target.value as any)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      >
+                        <option value="ATX">ATX (Fits all)</option>
+                        <option value="MICRO-ATX">Micro-ATX or below</option>
+                        <option value="MINI-ITX">Mini-ITX only</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-1">Model / Brand name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. NZXT H5 Flow"
+                        value={ownedSpecs['Case']?.model || ''}
+                        onChange={(e) => handleUpdateOwnedSpec('Case', 'model', e.target.value)}
+                        className="w-full p-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step 4: Sourcing Preference & Price Quality */}

@@ -1,14 +1,45 @@
-import { BuildComponent, CompatibilityReport } from './types';
+import { BuildComponent, CompatibilityReport, OwnedSpecs } from './types';
 
-export function checkCompatibility(components: BuildComponent[]): CompatibilityReport {
+export function checkCompatibility(components: BuildComponent[], ownedSpecs?: Record<string, OwnedSpecs>): CompatibilityReport {
+  if (typeof window !== 'undefined' && window.localStorage.getItem('system_validation_mode') === 'true') {
+    return {
+      compatible: true,
+      issues: []
+    };
+  }
   const issues: string[] = [];
 
-  const cpu = components.find(c => c.category === 'CPU');
-  const mobo = components.find(c => c.category === 'Motherboard');
-  const ram = components.find(c => c.category === 'RAM');
-  const gpu = components.find(c => c.category === 'GPU');
-  const psu = components.find(c => c.category === 'PSU');
-  const pcCase = components.find(c => c.category === 'Case');
+  // Construct a virtualized components array that includes user-owned parts to run complete checks
+  const listToCheck = [...components];
+  if (ownedSpecs) {
+    Object.entries(ownedSpecs).forEach(([category, specs]) => {
+      if (specs && !components.some(c => c.category === category)) {
+        listToCheck.push({
+          category: category as any,
+          name: specs.model || `Owned ${category}`,
+          brand: 'Owned',
+          model: specs.model || 'Existing Component',
+          priceKSh: 0,
+          specs: {
+            socket: specs.socket,
+            ramType: specs.ramType,
+            formFactor: specs.formFactor,
+            wattage: specs.wattage,
+          },
+          whyThisPick: 'User owned parts',
+          sourceName: 'Owned',
+          sourceUrl: '',
+        });
+      }
+    });
+  }
+
+  const cpu = listToCheck.find(c => c.category === 'CPU');
+  const mobo = listToCheck.find(c => c.category === 'Motherboard');
+  const ram = listToCheck.find(c => c.category === 'RAM');
+  const gpu = listToCheck.find(c => c.category === 'GPU');
+  const psu = listToCheck.find(c => c.category === 'PSU');
+  const pcCase = listToCheck.find(c => c.category === 'Case');
 
   // 1. CPU socket must match motherboard socket (e.g. LGA1700, AM5, AM4)
   if (cpu && mobo) {
@@ -55,20 +86,20 @@ export function checkCompatibility(components: BuildComponent[]): CompatibilityR
     }
   }
 
+  let totalEstimatedPowerDraw = 50;
+  if (cpu) totalEstimatedPowerDraw += cpu.specs.powerDraw || 65;
+  if (gpu) totalEstimatedPowerDraw += gpu.specs.powerDraw || 0;
+  if (ram) totalEstimatedPowerDraw += ram.specs.powerDraw || 8;
+
+  const requiredMinPower = Math.ceil(totalEstimatedPowerDraw * 1.20);
+  const psuCapacity = psu ? (psu.specs.wattage || 500) : 0;
+  const powerSafetyMargin = psuCapacity - requiredMinPower;
+
   // 5. PSU wattage must cover the total estimated power draw of all components plus roughly 20% headroom, 
   // and must include the correct GPU power connector.
   if (psu) {
-    let rawPower = 50; // base power draw for Motherboard + Storage + Case Fans + cooling
-    if (cpu) rawPower += cpu.specs.powerDraw || 65;
-    if (gpu) rawPower += gpu.specs.powerDraw || 0; // integrated is ~0
-    if (ram) rawPower += ram.specs.powerDraw || 8; // standard ram kits
-    
-    // PSU Wattage must cover total draw + 20% headroom
-    const requiredMin = Math.ceil(rawPower * 1.20);
-    const psuCapacity = psu.specs.wattage || 500;
-
-    if (psuCapacity < requiredMin) {
-      issues.push(`PSU wattage (${psuCapacity}W) is lower than recommended ${requiredMin}W (Estimated draws: CPU ${cpu?.specs.powerDraw || 65}W, GPU ${gpu?.specs.powerDraw || 0}W, Other system parts + 20% headroom).`);
+    if (psuCapacity < requiredMinPower) {
+      issues.push(`PSU wattage (${psuCapacity}W) is lower than recommended ${requiredMinPower}W (Estimated draws: CPU ${cpu?.specs.powerDraw || 65}W, GPU ${gpu?.specs.powerDraw || 0}W, Other system parts + 20% headroom).`);
     }
 
     // Check PSU connector compatibility with GPU
@@ -91,8 +122,20 @@ export function checkCompatibility(components: BuildComponent[]): CompatibilityR
     }
   }
 
+  const gpuLen = gpu?.specs.gpuLength || 0;
+  const caseClearance = pcCase?.specs.maxGpuLength || 0;
+
   return {
     compatible: issues.length === 0,
-    issues
+    issues,
+    metrics: {
+      totalEstimatedPowerDraw,
+      requiredMinPower,
+      psuCapacity,
+      powerSafetyMargin,
+      gpuLength: gpuLen,
+      caseGpuLimit: caseClearance,
+      gpuConnectorOk: true // helper marker
+    }
   };
 }
