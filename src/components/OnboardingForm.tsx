@@ -63,12 +63,72 @@ const CATEGORIES: { label: string; value: ComponentCategory }[] = [
   { label: 'Computer Case', value: 'Case' },
 ];
 
+export function getBudgetSanityReport(budget: number, useCase: string, excluded: ComponentCategory[]) {
+  const hasGPU = !excluded.includes('GPU');
+  const hasMonitor = !excluded.includes('Monitor');
+
+  let minRecommended = 20000;
+  if (useCase === 'Gaming') {
+    minRecommended = 35000;
+    if (hasGPU) minRecommended += 20000;
+    if (hasMonitor) minRecommended += 10000;
+  } else if (useCase === 'ContentCreation') {
+    minRecommended = 30000;
+    if (hasGPU) minRecommended += 15000;
+    if (hasMonitor) minRecommended += 10000;
+  } else if (useCase === 'Office') {
+    minRecommended = 15000;
+    if (hasMonitor) minRecommended += 8000;
+  } else {
+    minRecommended = 15000;
+    if (hasMonitor) minRecommended += 8000;
+  }
+
+  const ratio = budget / minRecommended;
+  let status: 'critical' | 'tight' | 'healthy' | 'excellent' = 'healthy';
+  let message = "";
+  let colorClass = "";
+  let bgClass = "";
+  let borderClass = "";
+
+  if (ratio < 0.6) {
+    status = 'critical';
+    colorClass = 'text-rose-700 dark:text-rose-400';
+    bgClass = 'bg-rose-50/50 dark:bg-rose-950/10';
+    borderClass = 'border-rose-100 dark:border-rose-900/40';
+    message = `⚠️ Extremely Tight Budget: The selected budget (${formatKSh(budget)}) is very low for a standard ${useCase} machine. Sourcing real, high-quality compatible parts might be difficult or force extremely low-end or refurbished choices. Consider raising the budget or excluding parts you already own (e.g., Monitor or GPU) to re-allocate funds.`;
+  } else if (ratio < 0.95) {
+    status = 'tight';
+    colorClass = 'text-amber-700 dark:text-amber-550';
+    bgClass = 'bg-amber-50/50 dark:bg-amber-950/10';
+    borderClass = 'border-amber-100 dark:border-amber-900/30';
+    message = `⚠️ Tight Budget: While a ${useCase} PC is buildable, choices will be constrained to entry-level hardware. The AI recommender will prioritize stable, budget-oriented parts to complete the specifications. Reusing accessories or excluding categories you already own can help free up budget for bulkier parts!`;
+  } else if (ratio < 1.6) {
+    status = 'healthy';
+    colorClass = 'text-[#4A5D4E] dark:text-emerald-450';
+    bgClass = 'bg-natural-secondary bg-opacity-40 dark:bg-zinc-950/30';
+    borderClass = 'border-natural-border-light dark:border-zinc-800';
+    message = `✓ Perfect Match! This budget (${formatKSh(budget)}) is perfectly aligned for a solid, reliable, and performant ${useCase} system. Our AI will select well-rated and balanced components with optimal socket and TDP matches.`;
+  } else {
+    status = 'excellent';
+    colorClass = 'text-emerald-700 dark:text-emerald-400';
+    bgClass = 'bg-emerald-500/5 dark:bg-emerald-950/10';
+    borderClass = 'border-emerald-500/10 dark:border-emerald-550/15';
+    message = `⭐ Premium Build: An excellent budget room! Expect high-end, future-proof selections like top-tier multicore CPUs, fast storage, premium gold-rated power supplies, and highly efficient cooling parts optimized for ${useCase} performance.`;
+  }
+
+  return { status, message, colorClass, bgClass, borderClass, minRecommended };
+}
+
 export default function OnboardingForm({ onGenerate, loading }: OnboardingFormProps) {
   const [budgetInput, setBudgetInput] = useState<string>('120000');
   const [useCase, setUseCase] = useState<'Gaming' | 'Office' | 'ContentCreation' | 'General'>('Gaming');
   const [excluded, setExcluded] = useState<ComponentCategory[]>([]);
   const [sourcingPreference, setSourcingPreference] = useState<'hybrid' | 'local_only'>('hybrid');
   const [ownedSpecs, setOwnedSpecs] = useState<Record<string, OwnedSpecs>>({});
+
+  const numericBudget = parseFloat(budgetInput.replace(/,/g, '')) || 0;
+  const sanityReport = getBudgetSanityReport(numericBudget, useCase, excluded);
 
   const handlePresetSelect = (val: number) => {
     setBudgetInput(val.toString());
@@ -222,6 +282,29 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
               </button>
             );
           })}
+        </div>
+
+        {/* Dynamic Budget Sanity Checker */}
+        <div id="budget-sanity-checker" className={`mt-6 p-5 rounded-2xl border transition-all duration-300 ${sanityReport.borderClass} ${sanityReport.bgClass} flex items-start gap-4 animate-fade-in`}>
+          <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-white dark:bg-zinc-950 border border-natural-border-light dark:border-zinc-805 shadow-2xs">
+            {sanityReport.status === 'critical' && <span className="text-sm">⚠️</span>}
+            {sanityReport.status === 'tight' && <span className="text-sm">🔍</span>}
+            {sanityReport.status === 'healthy' && <span className="text-sm">✓</span>}
+            {sanityReport.status === 'excellent' && <span className="text-sm">⭐</span>}
+          </div>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`font-extrabold capitalize tracking-tight ${sanityReport.colorClass}`}>
+                {sanityReport.status} Alignment Index
+              </span>
+              <span className="text-[10px] bg-zinc-150/50 dark:bg-zinc-800 text-zinc-550 dark:text-zinc-400 px-1.5 py-0.5 rounded font-mono font-bold leading-normal">
+                Target base: {formatKSh(sanityReport.minRecommended)}
+              </span>
+            </div>
+            <p className="text-zinc-650 dark:text-[#A1998A] leading-relaxed font-sans mt-1">
+              {sanityReport.message}
+            </p>
+          </div>
         </div>
       </div>
 

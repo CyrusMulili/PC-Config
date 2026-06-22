@@ -186,7 +186,7 @@ export default function App() {
     if (!build) return;
     setLoadingFix(true);
 
-    const checkReport = checkCompatibility(build.components);
+    const checkReport = checkCompatibility(build.components, build.ownedSpecs, build.useCase);
     const promptInstructions = `I have minor compatibility report alerts in my build. Please check these errors and substitute any mismatched parts for fully compliant ones within budget.
 
 Active Conflicts:
@@ -329,6 +329,7 @@ ${checkReport.issues.join('\n')}`;
                 onAutoFix={handleAutoFix}
                 loadingFix={loadingFix}
                 onUpdateOwnedSpecs={handleUpdateOwnedSpecs}
+                useCase={build.useCase}
               />
 
               <BuildResults
@@ -338,6 +339,7 @@ ${checkReport.issues.join('\n')}`;
                 onRemoveComponent={handleRemoveComponent}
                 onOpenSwapModal={(cat, comp) => setSwapModalState({ category: cat, component: comp })}
                 onRestart={() => setBuild(null)}
+                sourcingMode={build.sourcingMode}
               />
             </div>
 

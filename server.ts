@@ -944,15 +944,21 @@ function validateAndEnforceRealWorldData(generatedComponents: any[]): any[] {
 // 1. Endpoint: Generate full build
 app.post('/api/build/generate', async (req, res) => {
   try {
-    const { budgetKSh, useCase, excludedCategories, sourcingPreference } = req.body;
+    let { budgetKSh, useCase, excludedCategories, sourcingPreference } = req.body;
     
-    if (!budgetKSh || isNaN(budgetKSh)) {
-      return res.status(400).json({ error: "Invalid budget value." });
+    const parsedBudget = Number(budgetKSh);
+    if (!budgetKSh || isNaN(parsedBudget) || parsedBudget < 15000) {
+      return res.status(400).json({ error: "Invalid budget value. Minimum budget is KSh 15,000." });
     }
 
+    const validUseCases = ['Gaming', 'Office', 'ContentCreation', 'General'];
+    if (!useCase || !validUseCases.includes(useCase)) {
+      useCase = 'General';
+    }
+    
     // Direct local-only bypass if specified
     if (sourcingPreference === 'local_only') {
-      const fallbackBuild = generateStaticFallbackBuild(Number(budgetKSh), useCase, excludedCategories || []);
+      const fallbackBuild = generateStaticFallbackBuild(parsedBudget, useCase, excludedCategories || []);
       const validatedList = validateAndEnforceRealWorldData(fallbackBuild.components || []);
       return res.json({
         ...fallbackBuild,
@@ -1058,7 +1064,7 @@ Respond ONLY with a JSON object. No other text. The JSON format must be EXACTLY:
         sourcingMode = 'estimation';
       } catch (innerError: any) {
         console.error("Second-attempt Gemini generation without grounding failed. Initiating static fallback build generator:", innerError);
-        const fallbackBuild = generateStaticFallbackBuild(Number(budgetKSh), useCase, excludedCategories || []);
+        const fallbackBuild = generateStaticFallbackBuild(parsedBudget, useCase, excludedCategories || []);
         const validatedList = validateAndEnforceRealWorldData(fallbackBuild.components || []);
         return res.json({
           ...fallbackBuild,
@@ -1084,7 +1090,8 @@ Respond ONLY with a JSON object. No other text. The JSON format must be EXACTLY:
     console.error("Generate error - initiating safety offline fallback build:", error);
     try {
       const budgetVal = Number(req.body.budgetKSh) || 120000;
-      const useCaseVal = req.body.useCase || 'Gaming';
+      const rawUseCase = req.body.useCase;
+      const useCaseVal = ['Gaming', 'Office', 'ContentCreation', 'General'].includes(rawUseCase) ? rawUseCase : 'General';
       const excludedSet = req.body.excludedCategories || [];
       const fallbackBuild = generateStaticFallbackBuild(budgetVal, useCaseVal, excludedSet);
       const validatedList = validateAndEnforceRealWorldData(fallbackBuild.components || []);

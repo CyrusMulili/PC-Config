@@ -1,6 +1,6 @@
 import { BuildComponent, CompatibilityReport, OwnedSpecs } from './types';
 
-export function checkCompatibility(components: BuildComponent[], ownedSpecs?: Record<string, OwnedSpecs>): CompatibilityReport {
+export function checkCompatibility(components: BuildComponent[], ownedSpecs?: Record<string, OwnedSpecs>, useCase?: string): CompatibilityReport {
   if (typeof window !== 'undefined' && window.localStorage.getItem('system_validation_mode') === 'true') {
     return {
       compatible: true,
@@ -118,6 +118,29 @@ export function checkCompatibility(components: BuildComponent[], ownedSpecs?: Re
         } else if (!hasPCIe && psuCapacity < 450) {
           issues.push(`PSU may lack the necessary PCIe cables (${gpu.specs.gpuPowerConnectors}) to power this discrete GPU.`);
         }
+      }
+    }
+  }
+
+  // 6. Use-Case Workload Suitability Validations
+  if (useCase) {
+    const ownedKeys = ownedSpecs ? Object.keys(ownedSpecs) : [];
+    const hasGPU = gpu || ownedKeys.includes('GPU');
+    
+    if (useCase === 'Gaming') {
+      if (!hasGPU) {
+        issues.push(`Gaming Workload: No dedicated Graphics Card (GPU) found or owned for high-frame-rate rendering support.`);
+      }
+    } else if (useCase === 'ContentCreation') {
+      const cpuName = ((cpu?.name || cpu?.model || (ownedSpecs?.CPU ? ownedSpecs.CPU.model : '') || "") as string).toUpperCase();
+      const ramName = ((ram?.name || ram?.model || (ownedSpecs?.RAM ? ownedSpecs.RAM.model : '') || "") as string).toUpperCase();
+      const isLowRam = ramName.length > 0 && !ramName.includes('16GB') && !ramName.includes('32GB') && !ramName.includes('64GB') && ramName.includes('8GB');
+      
+      if (!hasGPU) {
+        issues.push(`Content Creation: Dedicating rendering tasks to integrated graphics without a discrete GPU slows video/editing pipelines.`);
+      }
+      if (isLowRam) {
+        issues.push(`Content Creation: Recommended RAM density is 8GB, which is below the 16GB threshold required for heavy timeline scrub rendering.`);
       }
     }
   }

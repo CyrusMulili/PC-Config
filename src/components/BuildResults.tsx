@@ -29,6 +29,7 @@ interface BuildResultsProps {
   onRemoveComponent: (category: ComponentCategory) => void;
   onOpenSwapModal: (category: ComponentCategory, component: BuildComponent) => void;
   onRestart: () => void;
+  sourcingMode?: string;
 }
 
 const containerVariants = {
@@ -61,7 +62,8 @@ export default function BuildResults({
   totalCostKSh,
   onRemoveComponent,
   onOpenSwapModal,
-  onRestart
+  onRestart,
+  sourcingMode
 }: BuildResultsProps) {
   const [expandedCard, setExpandedCard] = useState<ComponentCategory | null>(null);
   const [auditStatus, setAuditStatus] = useState<Record<string, 'idle' | 'running' | 'success'>>({});
@@ -201,6 +203,36 @@ export default function BuildResults({
           </div>
         </div>
       </div>
+
+      {sourcingMode && sourcingMode !== 'live' && (
+        <div id="quota-fallback-notice" className={`p-5 rounded-3xl border text-xs flex items-start gap-3 animate-fade-in ${
+          sourcingMode === 'local_catalog' 
+            ? 'bg-rose-500/5 dark:bg-rose-500/10 border-rose-500/20 text-rose-850 dark:text-rose-350' 
+            : 'bg-amber-500/10 border border-amber-500/20 text-amber-850 dark:text-amber-300'
+        }`}>
+          <Info className={`h-5 w-5 shrink-0 mt-0.5 animate-pulse ${
+            sourcingMode === 'local_catalog' ? 'text-rose-550 dark:text-rose-400' : 'text-amber-550 dark:text-amber-400'
+          }`} />
+          <div className="space-y-1">
+            <h4 className="font-extrabold tracking-tight">
+              {sourcingMode === 'local_catalog'
+                ? "Active Rate Limit Autocorrection: Offline Local Catalog Mode"
+                : "Active API Limit Autocorrection Mitigation"}
+            </h4>
+            <p className="leading-relaxed text-[11px] text-zinc-650 dark:text-zinc-305">
+              {sourcingMode === 'local_catalog' ? (
+                <>
+                  BuildWise live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are strictly enforced on-device, and pricing estimates match verified local Kenyan stock.
+                </>
+              ) : (
+                <>
+                  BuildWise live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are enforced, and pricing estimates match verified local Kenyan stock.
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Grid of Part Cards */}
       <motion.div

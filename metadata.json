@@ -1,5 +1,5 @@
 {
-  "name": "BuildWise",
+  "name": "BuildWise KE",
   "description": "An AI-powered PC build advisor for shoppers in Kenya with Google Search grounding to find real, compatible computer parts within your budget.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -9,9 +9,10 @@ interface CompatDisplayProps {
   onAutoFix?: () => void;
   loadingFix?: boolean;
   onUpdateOwnedSpecs?: (specs: Record<string, any>) => void;
+  useCase?: string;
 }
 
-export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadingFix, onUpdateOwnedSpecs }: CompatDisplayProps) {
+export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadingFix, onUpdateOwnedSpecs, useCase }: CompatDisplayProps) {
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
   const [validationMode, setValidationMode] = useState<boolean>(() => {
     return typeof window !== 'undefined' && window.localStorage.getItem('system_validation_mode') === 'true';
@@ -151,7 +152,7 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
     onUpdateOwnedSpecs(nextSpecs);
   };
 
-  const report = checkCompatibility(components, ownedSpecs);
+  const report = checkCompatibility(components, ownedSpecs, useCase);
 
   // Define the core compatibility checks we ran in code
   const checks = [
@@ -161,6 +162,7 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
     { name: 'GPU Length Clearance', desc: "GPU fits inside Case's physical clearance (mm)" },
     { name: 'Power Supply Sufficiency', desc: 'PSU wattage covers TDP demands + 20% comfort cushion' },
     { name: 'PCIe Connector Coverage', desc: 'PSU includes required power plugs for high-end GPUs' },
+    { name: 'Workload Suitability', desc: 'Core hardware tier and discrete GPU alignment matches target use-case requirements.' },
   ];
 
   return (
@@ -403,6 +405,7 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
             if (ck.name.includes('GPU Length') && report.issues.some(i => i.toLowerCase().includes('gpu length'))) hasIssue = true;
             if (ck.name.includes('Power Supply') && report.issues.some(i => i.toLowerCase().includes('wattage') || i.toLowerCase().includes('power draw'))) hasIssue = true;
             if (ck.name.includes('PCIe') && report.issues.some(i => i.toLowerCase().includes('cable') || i.toLowerCase().includes('connectors') || i.toLowerCase().includes('12vhpwr'))) hasIssue = true;
+            if (ck.name.includes('Workload') && report.issues.some(i => i.toLowerCase().includes('gaming workload') || i.toLowerCase().includes('content creation') || i.toLowerCase().includes('workload'))) hasIssue = true;
 
             return (
               <div key={ck.name} className="flex items-start gap-2 p-2 rounded-xl border border-natural-border-light dark:border-zinc-800/30 bg-natural-secondary/60 dark:bg-zinc-800/10">
