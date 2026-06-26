@@ -501,7 +501,7 @@ export default function DiagnosticSuite({
               <Shield className="h-5.5 w-5.5" />
             </div>
             <div>
-              <h2 className="text-lg font-extrabold text-zinc-950 dark:text-zinc-50 tracking-tight">BuildWise Diagnostics Panel</h2>
+              <h2 className="text-lg font-extrabold text-zinc-950 dark:text-zinc-50 tracking-tight">Jenga Diagnostics Panel</h2>
               <p className="text-xs text-zinc-500">Analyze electrical clearances, run validation stress-tests, and live-mitigate part mismatches</p>
             </div>
           </div>
@@ -925,7 +925,7 @@ export default function DiagnosticSuite({
                     <div className="space-y-1">
                       <strong className="text-zinc-800 dark:text-zinc-100 font-bold block text-xs">🚀 Reliable Physical/Electrical Linter Engine</strong>
                       <p className="text-[11px] leading-normal text-zinc-555">
-                        BuildWise runs an isolated, fully automated rules matrix mapping CPU sockets, memory pins, motherboard clearances, PSU ratings, and case support structures in a millisecond response envelope. It catches compatibility exceptions long before user payment.
+                        Jenga runs an isolated, fully automated rules matrix mapping CPU sockets, memory pins, motherboard clearances, PSU ratings, and case support structures in a millisecond response envelope. It catches compatibility exceptions long before user payment.
                       </p>
                     </div>
 

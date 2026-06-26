@@ -621,8 +621,8 @@ export default function OnboardingForm({ onGenerate, loading }: OnboardingFormPr
           <Info className="h-3.5 w-3.5 shrink-0" />
           <span>
             {sourcingPreference === 'hybrid'
-              ? 'BuildWise searches live Kenyan retailers via AI grounding to match actual current listings.'
-              : 'BuildWise is running in local stable mode. Recommendations are directly sourced from the verified local offline hardware catalog.'}
+              ? 'Jenga searches live Kenyan retailers via AI grounding to match actual current listings.'
+              : 'Jenga is running in local stable mode. Recommendations are directly sourced from the verified local offline hardware catalog.'}
           </span>
         </div>
       </div>

@@ -110,7 +110,7 @@ export default function ChatPanel({
             <MessageSquare className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-natural-text dark:text-zinc-50">BuildWise Chat Assistant</h3>
+            <h3 className="font-bold text-sm text-natural-text dark:text-zinc-50">Jenga Chat Assistant</h3>
             <span className="text-[10px] text-natural-muted font-mono flex items-center gap-1 mt-0.5 font-bold">
               <span className="h-1.5 w-1.5 rounded-full bg-natural-primary animate-pulse" />
               <span>Grounded Google Search Session</span>
@@ -127,7 +127,7 @@ export default function ChatPanel({
               <Sparkles className="h-6 w-6 text-amber-500 animate-pulse" />
             </div>
             <div>
-              <p className="text-xs font-bold text-natural-text dark:text-zinc-300">BuildWise Assistant Active</p>
+              <p className="text-xs font-bold text-natural-text dark:text-zinc-300">Jenga Assistant Active</p>
               <p className="text-[11px] text-natural-muted mt-1">
                 Type instructions here to filter your parts list or ask compatibility inquiries.
               </p>
@@ -160,7 +160,7 @@ export default function ChatPanel({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>BuildWise is searching stores...</span>
+              <span>Jenga is searching stores...</span>
             </div>
           </div>
         )}
@@ -194,7 +194,7 @@ export default function ChatPanel({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask BuildWise to tweak specs or swap models..."
+          placeholder="Ask Jenga to tweak specs or swap models..."
           className="flex-1 px-3.5 py-2.5 rounded-xl border border-natural-border dark:border-zinc-700 bg-white/70 dark:bg-transparent text-xs text-natural-text dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-natural-primary"
           disabled={loading}
         />

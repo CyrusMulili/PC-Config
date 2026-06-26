@@ -222,11 +222,11 @@ export default function BuildResults({
             <p className="leading-relaxed text-[11px] text-zinc-650 dark:text-zinc-305">
               {sourcingMode === 'local_catalog' ? (
                 <>
-                  BuildWise live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are strictly enforced on-device, and pricing estimates match verified local Kenyan stock.
+                  Jenga live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are strictly enforced on-device, and pricing estimates match verified local Kenyan stock.
                 </>
               ) : (
                 <>
-                  BuildWise live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are enforced, and pricing estimates match verified local Kenyan stock.
+                  Jenga live web queries encountered transient API quota rate limits (429 Quota Exhausted). To preserve your active session without throwing fatal crash alerts, our <strong>Verified Offline Local Catalog Matcher</strong> stepped in automatically! Every piece remains fully compatible, socket alignments are enforced, and pricing estimates match verified local Kenyan stock.
                 </>
               )}
             </p>

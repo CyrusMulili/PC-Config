@@ -6,10 +6,11 @@ import ChatPanel from './components/ChatPanel';
 import SwapModal from './components/SwapModal';
 import GenerationLoader from './components/GenerationLoader';
 import DiagnosticSuite from './components/DiagnosticSuite';
+import DocumentationSuite from './components/DocumentationSuite';
 import { BuildComponent, ComponentCategory, PCBuild, ChatMessage } from './types';
 import { formatKSh } from './utils';
 import { checkCompatibility } from './compatibility';
-import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight, Shield } from 'lucide-react';
+import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight, Shield, BookOpen } from 'lucide-react';
 
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -20,6 +21,7 @@ export default function App() {
   const [swapModalState, setSwapModalState] = useState<{ category: ComponentCategory; component: BuildComponent } | null>(null);
   const [pendingSpec, setPendingSpec] = useState<{ budgetKSh: number; useCase: string } | null>(null);
   const [diagnosticOpen, setDiagnosticOpen] = useState(false);
+  const [documentationOpen, setDocumentationOpen] = useState(false);
 
   // Apply dark mode theme class toggle on HTML element
   useEffect(() => {
@@ -85,7 +87,7 @@ export default function App() {
           {
             id: 'init-greet',
             sender: 'assistant',
-            text: `🔧 **BuildWise PC Build Recommendations Generated!**\n\nI have structured a customized build matching your budget of **${formatKSh(formData.budgetKSh)}** optimized for **${formData.useCase}** tasks.\n\n**Sourcing Method:** ${sourcingMethodSnippet}\n\nExpand any component card below to inspect electrical clearance rules, socket types, competitor listings, or to perform a direct parts comparison!`,
+            text: `🔧 **Jenga PC Build Recommendations Generated!**\n\nI have structured a customized build matching your budget of **${formatKSh(formData.budgetKSh)}** optimized for **${formData.useCase}** tasks.\n\n**Sourcing Method:** ${sourcingMethodSnippet}\n\nExpand any component card below to inspect electrical clearance rules, socket types, competitor listings, or to perform a direct parts comparison!`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ]);
@@ -234,10 +236,10 @@ ${checkReport.issues.join('\n')}`;
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-natural-primary text-white flex items-center justify-center font-black text-xl shadow-md">
-              W
+              J
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight text-natural-primary dark:text-zinc-50">BuildWise</h1>
+              <h1 className="text-base font-bold tracking-tight text-natural-primary dark:text-zinc-50">Jenga</h1>
               <p className="text-[10px] text-natural-muted font-bold">Kenyan AI PC Build Advisor</p>
             </div>
           </div>
@@ -270,6 +272,16 @@ ${checkReport.issues.join('\n')}`;
                 <span>Smart PC Build Grounding</span>
               </span>
             )}
+
+            {/* System Blueprint / PDF Documentation Manual */}
+            <button
+              onClick={() => setDocumentationOpen(true)}
+              className="p-2 py-1.5 rounded-xl border border-natural-border-light dark:border-zinc-850 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs cursor-pointer hover:bg-indigo-500/15 transition flex items-center gap-1.5 select-none"
+              title="Open Five-Page System Documentation & Architecture Guide"
+            >
+              <BookOpen className="h-4 w-4 text-indigo-500 animate-pulse" />
+              <span className="hidden sm:inline">System Manual</span>
+            </button>
 
             {/* System Testing & Telemetry Diagnostic Suite */}
             <button
@@ -310,7 +322,7 @@ ${checkReport.issues.join('\n')}`;
                   Build the Perfect Computer
                 </h2>
                 <p className="text-sm text-natural-muted leading-relaxed max-w-lg mx-auto font-medium">
-                  Enter your total budget in Kenyan Shillings. BuildWise rule-engine translates details to find compatible component deals from popular shops.
+                  Enter your total budget in Kenyan Shillings. Jenga's rule-engine translates details to find compatible component deals from popular shops.
                 </p>
               </div>
               
@@ -357,7 +369,7 @@ ${checkReport.issues.join('\n')}`;
               {/* Informational Guide Area */}
               <div className="mt-4 p-4 rounded-3xl border border-natural-border-light dark:border-zinc-850 bg-white/40 dark:bg-zinc-900/40 text-xs text-natural-muted leading-relaxed space-y-2">
                 <p className="font-bold uppercase tracking-wider text-[10px] text-natural-primary">Notes regarding stocks & price tags</p>
-                <p>BuildWise recommends hardware matching complex physical rule restrictions. Grounding connects live data; however, local store pricing fluctuates frequently. Source links are provided to let you verify individual retail item stock levels.</p>
+                <p>Jenga recommends hardware matching complex physical rule restrictions. Grounding connects live data; however, local store pricing fluctuates frequently. Source links are provided to let you verify individual retail item stock levels.</p>
               </div>
             </div>
           </div>
@@ -391,6 +403,12 @@ ${checkReport.issues.join('\n')}`;
             totalCostKSh: components.reduce((sum, c) => sum + (c.priceKSh || 0), 0)
           });
         }}
+      />
+
+      {/* Five-Page Interactive Technical & System Blueprint Manual */}
+      <DocumentationSuite
+        isOpen={documentationOpen}
+        onClose={() => setDocumentationOpen(false)}
       />
     </div>
   );
