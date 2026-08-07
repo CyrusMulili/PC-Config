@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import OnboardingForm from './components/OnboardingForm';
 import BuildResults from './components/BuildResults';
 import CompatDisplay from './components/CompatDisplay';
@@ -410,6 +411,9 @@ ${checkReport.issues.join('\n')}`;
         isOpen={documentationOpen}
         onClose={() => setDocumentationOpen(false)}
       />
+      
+      {/* Vercel Speed Insights */}
+      <SpeedInsights />
     </div>
   );
 }
