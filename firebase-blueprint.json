@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "email", "createdAt"]
+    },
+    "PCBuild": {
+      "title": "PCBuild",
+      "description": "A saved PC build recommendation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "buildName": { "type": "string" },
+        "budgetKSh": { "type": "number" },
+        "totalCostKSh": { "type": "number" },
+        "useCase": { "type": "string" },
+        "sourcingMode": { "type": "string" },
+        "components": { "type": "array" },
+        "ownedSpecs": { "type": "object" },
+        "chatHistory": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "userId",
+        "buildName",
+        "budgetKSh",
+        "totalCostKSh",
+        "useCase",
+        "sourcingMode",
+        "components",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile information"
+    },
+    "/users/{userId}/builds/{buildId}": {
+      "schema": "PCBuild",
+      "description": "Collection of saved PC builds for a user"
+    }
+  }
+}

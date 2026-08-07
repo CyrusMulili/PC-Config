@@ -5,12 +5,11 @@ import CompatDisplay from './components/CompatDisplay';
 import ChatPanel from './components/ChatPanel';
 import SwapModal from './components/SwapModal';
 import GenerationLoader from './components/GenerationLoader';
-import DiagnosticSuite from './components/DiagnosticSuite';
 import DocumentationSuite from './components/DocumentationSuite';
 import { BuildComponent, ComponentCategory, PCBuild, ChatMessage } from './types';
 import { formatKSh } from './utils';
 import { checkCompatibility } from './compatibility';
-import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight, Shield, BookOpen } from 'lucide-react';
+import { Sparkles, MonitorUp, Sun, Moon, HelpCircle, Laptop, Settings, ChevronRight, BookOpen } from 'lucide-react';
 
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -20,8 +19,20 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [swapModalState, setSwapModalState] = useState<{ category: ComponentCategory; component: BuildComponent } | null>(null);
   const [pendingSpec, setPendingSpec] = useState<{ budgetKSh: number; useCase: string } | null>(null);
-  const [diagnosticOpen, setDiagnosticOpen] = useState(false);
   const [documentationOpen, setDocumentationOpen] = useState(false);
+
+  const handleLoadBuild = (loadedBuild: any) => {
+    setBuild({
+      components: loadedBuild.components,
+      budgetKSh: loadedBuild.budgetKSh,
+      totalCostKSh: loadedBuild.totalCostKSh,
+      useCase: loadedBuild.useCase,
+      excludedCategories: loadedBuild.excludedCategories || [],
+      sourcingMode: loadedBuild.sourcingMode || 'live',
+      ownedSpecs: loadedBuild.ownedSpecs || {}
+    });
+    setChatHistory(loadedBuild.chatHistory || []);
+  };
 
   // Apply dark mode theme class toggle on HTML element
   useEffect(() => {
@@ -226,7 +237,7 @@ ${checkReport.issues.join('\n')}`;
   };
 
   return (
-    <div className="min-h-screen bg-natural-bg/90 text-natural-text dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-natural-bg/95 text-natural-text dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300 font-sans blueprint-grid relative">
       {/* Decorative Blur Backdrops */}
       <div className="absolute top-0 left-1/4 h-[400px] w-[500px] bg-natural-primary/5 dark:bg-emerald-950/10 blur-3xl pointer-events-none rounded-full" />
       <div className="absolute top-48 right-1/4 h-[350px] w-[450px] bg-natural-muted/5 dark:bg-zinc-950/5 blur-3xl pointer-events-none rounded-full" />
@@ -283,16 +294,6 @@ ${checkReport.issues.join('\n')}`;
               <span className="hidden sm:inline">System Manual</span>
             </button>
 
-            {/* System Testing & Telemetry Diagnostic Suite */}
-            <button
-              onClick={() => setDiagnosticOpen(true)}
-              className="p-2 py-1.5 rounded-xl border border-natural-border-light dark:border-zinc-850 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs cursor-pointer hover:bg-emerald-500/15 transition flex items-center gap-1.5 select-none"
-              title="Open System Validation Testing & Diagnostics Suite"
-            >
-              <Shield className="h-4 w-4 text-emerald-500 animate-pulse" />
-              <span className="hidden sm:inline">Telemetry & Testing</span>
-            </button>
-
             {/* Light/Dark Toggle */}
             <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
@@ -314,15 +315,15 @@ ${checkReport.issues.join('\n')}`;
             /* Onboarding Form Screen */
             <div className="space-y-8 animate-fade-in">
               <div className="text-center space-y-3 max-w-2xl mx-auto mb-6">
-                <div className="inline-flex items-center gap-1.5 bg-natural-primary/10 border border-natural-primary/20 text-natural-primary px-3 py-1 rounded-full text-xs font-bold">
-                  <Sparkles className="h-3 w-3" />
+                <div className="inline-flex items-center gap-1.5 bg-natural-primary/10 border border-natural-primary/20 text-natural-primary px-3 py-1.5 rounded-full text-xs font-bold shadow-xs">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
                   <span>Search Grounding Advisor</span>
                 </div>
-                <h2 className="text-4xl sm:text-5xl font-serif italic text-natural-primary dark:text-zinc-50 leading-tight">
+                <h2 className="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-natural-primary dark:text-zinc-50 leading-tight">
                   Build the Perfect Computer
                 </h2>
-                <p className="text-sm text-natural-muted leading-relaxed max-w-lg mx-auto font-medium">
-                  Enter your total budget in Kenyan Shillings. Jenga's rule-engine translates details to find compatible component deals from popular shops.
+                <p className="text-sm text-natural-muted leading-relaxed max-w-xl mx-auto font-medium">
+                  Enter your total budget in Kenyan Shillings. Jenga's smart rule-engine calculates, filters, and translates specifications to locate perfect compatible component deals across local shops.
                 </p>
               </div>
               
@@ -330,47 +331,32 @@ ${checkReport.issues.join('\n')}`;
             </div>
           )
         ) : (
-          /* Build Results & Chat Assistant View Screen */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Main Build results display (Left 2 columns) */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Compatibility warning display widget */}
-              <CompatDisplay 
-                components={build.components} 
-                ownedSpecs={build.ownedSpecs}
-                onAutoFix={handleAutoFix}
-                loadingFix={loadingFix}
-                onUpdateOwnedSpecs={handleUpdateOwnedSpecs}
-                useCase={build.useCase}
-              />
+          /* Build Results View Screen - Highly simplified full-width layout without chat panel */
+          <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+            {/* Compatibility warning display widget */}
+            <CompatDisplay 
+              components={build.components} 
+              ownedSpecs={build.ownedSpecs}
+              onAutoFix={handleAutoFix}
+              loadingFix={loadingFix}
+              onUpdateOwnedSpecs={handleUpdateOwnedSpecs}
+              useCase={build.useCase}
+            />
 
-              <BuildResults
-                components={build.components}
-                budgetKSh={build.budgetKSh}
-                totalCostKSh={build.totalCostKSh}
-                onRemoveComponent={handleRemoveComponent}
-                onOpenSwapModal={(cat, comp) => setSwapModalState({ category: cat, component: comp })}
-                onRestart={() => setBuild(null)}
-                sourcingMode={build.sourcingMode}
-              />
-            </div>
+            <BuildResults
+              components={build.components}
+              budgetKSh={build.budgetKSh}
+              totalCostKSh={build.totalCostKSh}
+              onRemoveComponent={handleRemoveComponent}
+              onOpenSwapModal={(cat, comp) => setSwapModalState({ category: cat, component: comp })}
+              onRestart={() => setBuild(null)}
+              sourcingMode={build.sourcingMode}
+            />
 
-            {/* Chat Assistant Sidebar layout (Right 1 column) */}
-            <div className="lg:sticky lg:top-24">
-              <ChatPanel
-                currentBuild={build}
-                onUpdateBuild={handleUpdateBuildFromChat}
-                chatHistory={chatHistory}
-                onAddMessage={handleAddChatMessage}
-                loading={loading}
-                setLoading={setLoading}
-              />
-
-              {/* Informational Guide Area */}
-              <div className="mt-4 p-4 rounded-3xl border border-natural-border-light dark:border-zinc-850 bg-white/40 dark:bg-zinc-900/40 text-xs text-natural-muted leading-relaxed space-y-2">
-                <p className="font-bold uppercase tracking-wider text-[10px] text-natural-primary">Notes regarding stocks & price tags</p>
-                <p>Jenga recommends hardware matching complex physical rule restrictions. Grounding connects live data; however, local store pricing fluctuates frequently. Source links are provided to let you verify individual retail item stock levels.</p>
-              </div>
+            {/* Informational Guide Area simplified at the bottom */}
+            <div className="p-5 rounded-3xl border border-natural-border-light dark:border-zinc-850 bg-white/45 dark:bg-zinc-900/45 text-xs text-natural-muted leading-relaxed space-y-2 shadow-xs">
+              <p className="font-bold uppercase tracking-wider text-[10px] text-natural-primary">Notes regarding local stock and pricing</p>
+              <p>Jenga recommends hardware matching complex physical rule restrictions. Sourcing mechanisms map live merchant information; however, local store pricing fluctuates frequently. Product validation links are provided to let you verify individual retail items directly.</p>
             </div>
           </div>
         )}
@@ -387,23 +373,6 @@ ${checkReport.issues.join('\n')}`;
           currentBuild={build}
         />
       )}
-
-      {/* System Validation Testing and Diagnostic Board */}
-      <DiagnosticSuite
-        isOpen={diagnosticOpen}
-        onClose={() => setDiagnosticOpen(false)}
-        currentComponents={build?.components || []}
-        ownedSpecs={build?.ownedSpecs}
-        onLoadScenario={(components, specs) => {
-          if (!build) return;
-          setBuild({
-            ...build,
-            components,
-            ownedSpecs: specs || {},
-            totalCostKSh: components.reduce((sum, c) => sum + (c.priceKSh || 0), 0)
-          });
-        }}
-      />
 
       {/* Five-Page Interactive Technical & System Blueprint Manual */}
       <DocumentationSuite

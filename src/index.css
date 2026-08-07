@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Space Grotesk", sans-serif;
 
   --color-natural-bg: #F4F1ED;
   --color-natural-text: #2D2A26;
@@ -13,6 +14,51 @@
   --color-natural-border: #D8D0C5;
   --color-natural-border-light: #EDE8E3;
   --color-natural-muted: #8C8376;
+}
+
+/* Custom visual utilities for professional aesthetics */
+.blueprint-grid {
+  background-size: 24px 24px;
+  background-image: radial-gradient(circle, rgba(74, 93, 78, 0.08) 1px, transparent 1px);
+}
+.dark .blueprint-grid {
+  background-image: radial-gradient(circle, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+}
+
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+}
+.dark .glass-card {
+  background-color: rgba(9, 9, 11, 0.75);
+  backdrop-filter: blur(12px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* Custom scroll bar styling */

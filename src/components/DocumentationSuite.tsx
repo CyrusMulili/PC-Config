@@ -12,7 +12,7 @@ export default function DocumentationSuite({ isOpen, onClose }: DocumentationSui
 
   if (!isOpen) return null;
 
-  const totalPages = 5;
+  const totalPages = 4;
 
   const handlePrint = () => {
     // Save current title, print, and restore
@@ -34,7 +34,7 @@ export default function DocumentationSuite({ isOpen, onClose }: DocumentationSui
             </div>
             <div>
               <h2 className="text-lg font-bold tracking-tight text-natural-primary dark:text-zinc-50">System Documentation Manual</h2>
-              <p className="text-[11px] text-natural-muted dark:text-zinc-400 font-bold uppercase tracking-wider">Five-Page Interactive Architecture Guide & Exportable Blueprint</p>
+              <p className="text-[11px] text-natural-muted dark:text-zinc-400 font-bold uppercase tracking-wider">Four-Page Interactive Architecture Guide & Exportable Blueprint</p>
             </div>
           </div>
 
@@ -57,13 +57,12 @@ export default function DocumentationSuite({ isOpen, onClose }: DocumentationSui
 
         {/* Navigation Sidebar / Tabs for Pages (Hidden during standard printing) */}
         <div className="print:hidden bg-natural-secondary/50 dark:bg-zinc-900/50 border-b border-natural-border-light dark:border-zinc-850 p-4 flex flex-wrap gap-2 justify-center">
-          {[1, 2, 3, 4, 5].map((pageNum) => {
+          {[1, 2, 3, 4].map((pageNum) => {
             const pageTitles = [
               "1. Executive Summary & Core Platform System Overview",
               "2. Gemini API & Live Web Search Grounding Integration",
               "3. Dual-Layer Hardware Constraint Rule Matrix Engine",
-              "4. Static Falling Catalog Structure & Math Allocations",
-              "5. Automated Diagnostic Testing & Self-Healing Telemetry"
+              "4. Static Falling Catalog Structure & Math Allocations"
             ];
             const isActive = currentPage === pageNum;
             return (
@@ -191,7 +190,7 @@ export default function DocumentationSuite({ isOpen, onClose }: DocumentationSui
 
               {/* Cover footer */}
               <div className="pt-10 border-t border-natural-border-light dark:border-zinc-850 flex justify-between items-center text-xs text-natural-muted font-mono">
-                <span>SYSTEM BLUEPRINT // PAGE 1 OF 5</span>
+                <span>SYSTEM BLUEPRINT // PAGE 1 OF 4</span>
                 <span>JENGA KE</span>
               </div>
             </section>
@@ -276,7 +275,7 @@ Format your responses strictly in JSON so they can be parsed by our physical rul
 
               {/* Page footer */}
               <div className="pt-10 border-t border-natural-border-light dark:border-zinc-850 flex justify-between items-center text-xs text-natural-muted font-mono">
-                <span>SYSTEM BLUEPRINT // PAGE 2 OF 5</span>
+                <span>SYSTEM BLUEPRINT // PAGE 2 OF 4</span>
                 <span>JENGA KE</span>
               </div>
             </section>
@@ -368,7 +367,7 @@ if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
 
               {/* Page footer */}
               <div className="pt-10 border-t border-natural-border-light dark:border-zinc-850 flex justify-between items-center text-xs text-natural-muted font-mono">
-                <span>SYSTEM BLUEPRINT // PAGE 3 OF 5</span>
+                <span>SYSTEM BLUEPRINT // PAGE 3 OF 4</span>
                 <span>JENGA KE</span>
               </div>
             </section>
@@ -461,91 +460,11 @@ if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
 
               {/* Page footer */}
               <div className="pt-10 border-t border-natural-border-light dark:border-zinc-850 flex justify-between items-center text-xs text-natural-muted font-mono">
-                <span>SYSTEM BLUEPRINT // PAGE 4 OF 5</span>
+                <span>SYSTEM BLUEPRINT // PAGE 4 OF 4</span>
                 <span>JENGA KE</span>
               </div>
             </section>
           )}
-
-          {/* ========================================================================= */}
-          {/* PAGE 5: AUTOMATED DIAGNOSTIC TESTING & SELF-HEALING TELEMETRY            */}
-          {/* ========================================================================= */}
-          {(currentPage === 5 || window.matchMedia('print').matches) && (
-            <section className="print:block page-section relative space-y-8 mt-12 print:mt-0" style={{ pageBreakAfter: 'always' }}>
-              
-              <div className="border-b border-natural-border dark:border-zinc-800 pb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-black tracking-widest rounded font-mono">TELEMETRY</span>
-                  <span className="text-xs text-natural-muted dark:text-zinc-500 font-mono">MODULE: DIAGNOSTIC SUITE</span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-serif text-natural-primary dark:text-zinc-50 tracking-tight leading-tight">
-                  Automated Diagnostics & Self-Healing Telemetry
-                </h1>
-              </div>
-
-              <div className="space-y-6 text-sm">
-                <h3 className="text-lg font-bold font-serif text-natural-primary dark:text-zinc-100 flex items-center gap-2 border-b border-natural-border-light dark:border-zinc-850 pb-2">
-                  <ShieldCheck className="h-5 w-5 text-natural-primary dark:text-emerald-400" />
-                  <span>5.1 Telemetry Dashboard & Verification Panel</span>
-                </h3>
-                <p>
-                  The integrated <strong>Telemetry Diagnostic Suite</strong> serves as Jenga's quality assurance framework. Administrators can use it to verify the rule engine's performance across simulated environments.
-                </p>
-                <p>
-                  The Telemetry Panel includes these automated diagnostic operations:
-                </p>
-
-                <div className="space-y-3">
-                  <div className="p-4 bg-natural-secondary dark:bg-zinc-950 border border-natural-border-light dark:border-zinc-850 rounded-2xl flex items-start gap-3">
-                    <span className="text-emerald-500 font-mono font-bold text-sm">A</span>
-                    <div>
-                      <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-xs">Clearence & Socket Jitter Simulations</h4>
-                      <p className="text-xs text-natural-muted">Simulates mismatch errors (e.g., LGA1700 CPU on AM4 motherboard) to verify that the rule engine correctly flags and reports clearance conflicts.</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-natural-secondary dark:bg-zinc-950 border border-natural-border-light dark:border-zinc-850 rounded-2xl flex items-start gap-3">
-                    <span className="text-emerald-500 font-mono font-bold text-sm">B</span>
-                    <div>
-                      <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-xs">Intelligent Wattage Stress Checks</h4>
-                      <p className="text-xs text-natural-muted">Simulates high power draw components on an entry-level 450W power supply to confirm that the validator triggers appropriate power warning flags.</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-natural-secondary dark:bg-zinc-950 border border-natural-border-light dark:border-zinc-850 rounded-2xl flex items-start gap-3">
-                    <span className="text-emerald-500 font-mono font-bold text-sm">C</span>
-                    <div>
-                      <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-xs">Auto-Fix Self-Healing Routing</h4>
-                      <p className="text-xs text-natural-muted">Allows users to resolve all flagged validation warnings in a single click by calling our correction API to swap mismatched items for compatible ones.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-bold font-serif text-natural-primary dark:text-zinc-100 flex items-center gap-2 border-b border-natural-border-light dark:border-zinc-850 pb-2 mt-8">
-                  <span>5.2 Production Readiness & Verification Checklist</span>
-                </h3>
-                <p>
-                  To verify correct system operation, administrators can run this telemetry checklist:
-                </p>
-
-                <div className="bg-zinc-950 text-zinc-350 p-5 rounded-2xl font-mono text-[11px] border border-zinc-850 space-y-2">
-                  <div className="text-zinc-400 border-b border-zinc-850 pb-2 font-bold">Verification Checklist Status Report</div>
-                  <div className="text-emerald-400">✓ TS-01: Express dev server compiles on static port 3000</div>
-                  <div className="text-emerald-400">✓ TS-02: Gemini Grounding client handles 429 quota codes automatically</div>
-                  <div className="text-emerald-400">✓ TS-03: Sockets, TDP, and GPU clearance equations pass linting</div>
-                  <div className="text-emerald-400">✓ TS-04: Kenyan Retailer currency mapping (KSh) parses properly</div>
-                  <div className="text-zinc-500">⏳ TS-05: Manual export layout print breaks successfully synchronized</div>
-                </div>
-              </div>
-
-              {/* Page footer */}
-              <div className="pt-10 border-t border-natural-border-light dark:border-zinc-850 flex justify-between items-center text-xs text-natural-muted font-mono">
-                <span>SYSTEM BLUEPRINT // PAGE 5 OF 5</span>
-                <span>JENGA KE</span>
-              </div>
-            </section>
-          )}
-
         </div>
 
         {/* Footer Bar (Hidden during standard printing) */}
@@ -574,7 +493,7 @@ if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
 
           <div className="flex items-center gap-2 text-xs text-natural-muted">
             <HelpCircle className="h-4 w-4" />
-            <span>Use the print browser dialog to generate a 5-page PDF document.</span>
+            <span>Use the print browser dialog to generate a 4-page PDF document.</span>
           </div>
         </div>
 

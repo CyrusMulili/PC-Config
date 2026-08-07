@@ -49,6 +49,7 @@ export interface PCBuild {
   excludedCategories: ComponentCategory[];
   sourcingMode?: 'live' | 'estimation' | 'local_catalog';
   ownedSpecs?: Record<string, OwnedSpecs>;
+  chatHistory?: ChatMessage[];
 }
 
 export interface CompatibilityReport {

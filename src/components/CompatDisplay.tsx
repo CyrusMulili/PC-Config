@@ -14,19 +14,6 @@ interface CompatDisplayProps {
 
 export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadingFix, onUpdateOwnedSpecs, useCase }: CompatDisplayProps) {
   const [isEditingSpecs, setIsEditingSpecs] = useState(false);
-  const [validationMode, setValidationMode] = useState<boolean>(() => {
-    return typeof window !== 'undefined' && window.localStorage.getItem('system_validation_mode') === 'true';
-  });
-
-  const toggleValidationMode = () => {
-    const nextMode = !validationMode;
-    setValidationMode(nextMode);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('system_validation_mode', nextMode ? 'true' : 'false');
-      // Dispatch a storage event so other components or App state can reload/repaint
-      window.dispatchEvent(new Event('storage'));
-    }
-  };
 
   const handleSpecChange = (cat: string, key: string, val: any) => {
     if (!onUpdateOwnedSpecs || !ownedSpecs) return;
@@ -187,7 +174,7 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-lg text-natural-text dark:text-zinc-50">
-                {report.compatible ? (validationMode ? 'System Validation Active' : 'Compatible Build Checked') : 'Compatibility Conflict Found'}
+                {report.compatible ? 'Compatible Build Checked' : 'Compatibility Conflict Found'}
               </h3>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold leading-none ${
                 report.compatible 
@@ -199,7 +186,7 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
             </div>
             <p className="text-sm mt-0.5 text-natural-muted dark:text-zinc-400 leading-relaxed">
               {report.compatible 
-                ? (validationMode ? '🧪 System Validation Testing active: All checks forced to successful state (compatible = true).' : 'All expert hardware rules checked out successfully. Your parts fit and power each other correctly.') 
+                ? 'All expert hardware rules checked out successfully. Your parts fit and power each other correctly.'
                 : `${report.issues.length} physical or electrical conflicts flagged in the build list. Use the AI auto-fix link or swap candidates.`
               }
             </p>
@@ -208,19 +195,6 @@ export default function CompatDisplay({ components, ownedSpecs, onAutoFix, loadi
 
         {/* Control Button Group */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 shrink-0">
-          <button
-            type="button"
-            onClick={toggleValidationMode}
-            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all duration-200 border flex items-center gap-2 cursor-pointer select-none shadow-xs active:scale-95 ${
-              validationMode
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 animate-pulse'
-                : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-805 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
-            }`}
-            title="Force compatibility checking status to always true for system testing"
-          >
-            <span className={`h-2 w-2 rounded-full ${validationMode ? 'bg-emerald-500 animate-ping' : 'bg-zinc-400'}`} />
-            <span>validation_testing = {validationMode ? 'true' : 'false'}</span>
-          </button>
 
           {/* AI Autocorrect Action */}
           {!report.compatible && onAutoFix && (

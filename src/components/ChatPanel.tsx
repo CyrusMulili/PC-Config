@@ -111,10 +111,6 @@ export default function ChatPanel({
           </div>
           <div>
             <h3 className="font-bold text-sm text-natural-text dark:text-zinc-50">Jenga Chat Assistant</h3>
-            <span className="text-[10px] text-natural-muted font-mono flex items-center gap-1 mt-0.5 font-bold">
-              <span className="h-1.5 w-1.5 rounded-full bg-natural-primary animate-pulse" />
-              <span>Grounded Google Search Session</span>
-            </span>
           </div>
         </div>
       </div>
